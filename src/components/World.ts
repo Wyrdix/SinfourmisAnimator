@@ -1,33 +1,48 @@
-import { Circle, Rect, RectProps } from "@motion-canvas/2d";
+import { Circle, Line, Rect, RectProps } from "@motion-canvas/2d";
 import { WorldNodeData, NodeType } from "./WorldNode";
-import { useLogger, Vector2 } from "@motion-canvas/core";
+import { Color, useLogger, Vector2 } from "@motion-canvas/core";
+
+export interface EdgeData {
+    i:number,
+    j:number,
+    life_ratio: number
+}
 
 export interface WorldData {
     nodes: Map<number, WorldNodeData>,
-    edges: [number, number][],
+    edges: EdgeData[],
 }
 
 export function parseWorld(lines:string[]) : WorldData {
-    const n: number = Number.parseInt(lines[0]);
+    lines = lines.map((v) => {
+        return v.includes("#") ? (v.substring(0, v.indexOf("#"))) : v
+    }).filter((v)=>v.trim() != "");
+
+    // Parse nodes
+
+    let node_begin = lines.findIndex((v)=>v.trim() == "== NODES") as number
+    let node_end = lines.findIndex((v)=>v.trim() == "== END NODES") as number
 
     const map = new Map<number, WorldNodeData>();
-    let consumed = 1;
-    for (let i = 0; i < n; i++) {
-        let real_i = consumed + i;
-        let v = lines[real_i];
+    for (let i = node_begin+1; i < node_end; i++) {
+        let v = lines[i];
         let raw_id;
 
-        [raw_id, v] = lines[real_i].split(":");
-        v = v.trim();
+        let id = i - node_begin - 1;
 
-        const id = Number.parseInt(raw_id);
+        if (v.includes(":")){
+            [raw_id, v] = v.split(":");    
+            id = Number.parseInt(raw_id);
+        }
+
+        v = v.trim();
 
         let raw_world_x, raw_world_y, raw_type, params:string[];
         [raw_world_x, raw_world_y, raw_type, ...params] = v.split(" ");
 
         const world_x = Number.parseInt(raw_world_x);
-        const world_y = Number.parseInt(raw_world_y);
-        const type = raw_type as NodeType
+        const world_y = -Number.parseInt(raw_world_y);
+        const type = (raw_type || "EMPTY") as NodeType
 
         map.set(id, {
             id,
@@ -37,8 +52,27 @@ export function parseWorld(lines:string[]) : WorldData {
         });
     }
 
-    consumed += n;
-    return {nodes: map, edges: []};
+    // Parse edges
+
+    let edges_begin = lines.findIndex((v)=>v.trim() == "== EDGES") as number
+    let edges_end = lines.findIndex((v)=>v.trim() == "== END EDGES") as number
+    const edges: EdgeData[] = [];
+
+    for (let i = edges_begin+1; i < edges_end; i++) {
+        let v = lines[i].trim();
+
+        let raw_v0, raw_v1, raw_life_ratio, rest: string[];
+
+        [raw_v0, raw_v1, raw_life_ratio, ...rest] = v.split(" ");
+
+        edges.push({
+            i:Number.parseInt(raw_v0),
+            j:Number.parseInt(raw_v1),
+            life_ratio: Math.min(Math.max(raw_life_ratio ? Number.parseFloat(raw_life_ratio) : 1.0, 0), 1.0)
+        });
+    }
+
+    return {nodes: map, edges: edges};
 }
 
 export interface WorldProps extends RectProps {
@@ -63,6 +97,12 @@ export class World extends Rect {
         this.fixed_size = props.fixed_size;
 
         this.refreshFileScale();
+    }
+
+    fromWorldToRect(position: Vector2){
+        position = position.mul(this.fileScale);
+        position = position.add(this.fileTranslate);
+        return position;
     }
 
     refreshFileScale() {
@@ -92,9 +132,6 @@ export class World extends Rect {
         this.fileScale = new Vector2([(this.fixed_size.x/2 - 20) / (maxPos[0] - minPos[0]), (this.fixed_size.y/2-20) / (maxPos[1] - minPos[1])]);
         this.fileTranslate = new Vector2( - sumPos[0] / n * this.fileScale.x, - sumPos[1]/n * this.fileScale.y);
         this.preferredNodeSize = 10 * Math.min(this.fileScale.x, this.fileScale.y);
-
-        useLogger().info(JSON.stringify(minPos));
-        useLogger().info(JSON.stringify(maxPos));
     }
 
     refresh(){
@@ -103,9 +140,31 @@ export class World extends Rect {
         
         const thisRef = this;
 
-        this.data.nodes.forEach((node, k, m) => {
+        this.data.edges.forEach((v)=>{
+            const {i, j, life_ratio} = v;
+
+            const node_i = this.data.nodes.get(i);
+            const pos_i = thisRef.fromWorldToRect(new Vector2(node_i.world_x, node_i.world_y));
+            const node_j = this.data.nodes.get(j);
+            const pos_j = thisRef.fromWorldToRect(new Vector2(node_j.world_x, node_j.world_y));
+
             thisRef.add(
-                new Circle({x: node.world_x * this.fileScale.x + this.fileTranslate.x, y:node.world_y * this.fileScale.y + this.fileTranslate.y, size:this.preferredNodeSize, lineWidth:2, stroke:"white"})
+                new Line(
+                    {
+                        points: [pos_i, pos_j],
+                        lineWidth: this.preferredNodeSize*0.2,
+                        stroke: Color.lerp("black", "white", life_ratio)
+                    }
+                )
+            )
+        })
+
+        this.data.nodes.forEach((node, k, m) => {
+
+            let position = thisRef.fromWorldToRect(new Vector2(node.world_x, node.world_y));
+            
+            thisRef.add(
+                new Circle({key:node.id+"", position:position, size:this.preferredNodeSize, lineWidth:4, stroke:"white", fill:"black"})
             );
         });
     }
