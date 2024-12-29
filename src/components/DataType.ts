@@ -34,10 +34,14 @@ export interface AntGroupData {
     link?: number
 }
 
+export interface AntGroupEdgeAnimationData {
+    progress: number;
+}
+
 export interface RawEdgeData {
     ids: [number, number],
     life_ratio?: number,
-    groups?: ({ progress: number } & AntGroupData)[]
+    groups?: ({ progress: number, anim?: AntGroupEdgeAnimationData } & AntGroupData)[]
 }
 
 export class WorldData {
@@ -101,7 +105,7 @@ export class EdgeData {
     id_1: number;
     id_2: number;
     life_ratio: number;
-    groups: ({ progress: number } & AntGroupData)[];
+    groups: ({ progress: number, anim?: AntGroupEdgeAnimationData } & AntGroupData)[];
 
     constructor(raw: RawEdgeData) {
         [this.id_1, this.id_2] = raw.ids.sort((a, b) => a - b);
