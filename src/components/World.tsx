@@ -1,5 +1,5 @@
 import { Gradient, Layout, LineProps, Node, Polygon, Rect, RectProps, Txt } from "@motion-canvas/2d";
-import { Color, useLogger, Vector2 } from "@motion-canvas/core";
+import { Color, ThreadGenerator, useLogger, Vector2 } from "@motion-canvas/core";
 import { EdgeData, WorldData } from "./DataType";
 import { WorldNode } from "./WorldNode";
 import { WorldEdge } from "./WorldEdge";
@@ -17,12 +17,13 @@ export class World extends Rect {
 
     data: WorldData;
     fixed_size: Vector2;
-
+    generators: ((timing: number) => ThreadGenerator)[]
 
     public constructor(props: WorldProps) {
         super({ ...props, width: props.fixed_size.x, height: props.fixed_size.y });
         this.data = props.data;
         this.fixed_size = props.fixed_size;
+        this.generators = [];
 
         this.refreshFileScale();
         this.refresh();

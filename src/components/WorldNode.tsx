@@ -1,5 +1,5 @@
 import { Circle, Shape, Polygon, CircleProps } from "@motion-canvas/2d";
-import { Vector2 } from "@motion-canvas/core";
+import { createSignal, Vector2 } from "@motion-canvas/core";
 import { WorldData, NodeData } from "./DataType";
 import { World } from "./World";
 import { WordNodeBuilding } from "./WordNodeBuilding";
@@ -50,7 +50,13 @@ export class WorldNode extends Circle {
             content_node.add(
                 <Circle size={props.size} fill="red" />
             );
-            content_node.scale(0.8 * props.node.food / this.world.maxfood);
+            const scale_signal = createSignal(props.node.food);
+            content_node.scale(() => 0.8 * scale_signal() / this.world.maxfood);
+
+            if (this.node.anim)
+                props.world.generators.push(t =>
+                    scale_signal(this.node.anim.food, t)
+                )
         } else if (this.node.type === "QUEEN") {
             const teamdata = this.world.teams.get(this.node.team);
 
