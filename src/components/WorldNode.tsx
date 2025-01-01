@@ -1,9 +1,8 @@
 import { Circle, Shape, Polygon, CircleProps } from "@motion-canvas/2d";
-import { all, createSignal, SimpleSignal, unwrap, useLogger, Vector2 } from "@motion-canvas/core";
-import { WorldData, NodeData, AntGroupData } from "./DataType";
+import { all, createRef, createSignal, SimpleSignal, Vector2 } from "@motion-canvas/core";
+import { WorldData, NodeData } from "./DataType";
 import { World } from "./World";
 import { WordNodeBuilding } from "./WordNodeBuilding";
-import { sep } from "path";
 
 
 export class WorldNode extends Circle {
@@ -21,7 +20,9 @@ export class WorldNode extends Circle {
         const color_node = <Shape scale={1.4}></Shape>;
 
         const before_value = Array.from(this.node.ants.values());
+        const before_value_map = this.node.ants;
         const after_value = this.node?.anim?.ants?.values() == null ? before_value : Array.from(this.node?.anim?.ants?.values());
+        const after_value_map = this.node?.anim?.ants?.values() == null ? before_value_map : this.node.anim.ants;
 
         const before_sum = before_value.map(v => v.qt).reduce((v1, v2) => v1 + v2, 0);
         const after_sum = after_value.map(v => v.qt).reduce((v1, v2) => v1 + v2, 0);
@@ -47,7 +48,8 @@ export class WorldNode extends Circle {
         }
 
         Array.from(this.world.teams.entries()).forEach(([thisid, team], vi) => {
-            const group = this.node.ants.get(thisid) || { qt: 0, team: team.id };
+            const group = before_value_map.get(thisid) || { qt: 0, team: team.id };
+            const after_group = after_value_map.get(thisid) || { qt: 0, team: team.id };
             color_node.add(
                 <Circle size={props.size}
                     opacity={() => {
@@ -58,11 +60,28 @@ export class WorldNode extends Circle {
                     stroke={team.color} lineWidth={10} />
             );
             if (group.link) {
-                group.link.map(v => this.world.nodes.get(v))
-                    .forEach(link_node => {
-                        props.world.add(
-                            <WordNodeBuilding world={props.world} team={group.team} points={[this.getAbsolutePosition(), props.world.fromWorldToRect(new Vector2(link_node.x, link_node.y))]} lineDash={[20, 10]} />
+                group.link
+                    .forEach(v => {
+                        const link_node = this.world.nodes.get(v)
+                        const node = createRef<WordNodeBuilding>();
+                        props.world.add(<WordNodeBuilding ref={node} world={props.world} team={group.team} points={[this.getAbsolutePosition(), props.world.fromWorldToRect(new Vector2(link_node.x, link_node.y))]} lineDash={[20, 10]} />
                         );
+
+                        if (!after_value_map.get(thisid)?.link?.includes(v))
+                            props.world.generators.push(t => node().start(1, t))
+                    })
+            }
+
+            if (after_group.link) {
+                after_group.link
+                    .forEach(v => {
+                        if (!before_value_map.get(thisid)?.link?.includes(v)) {
+                            const link_node = this.world.nodes.get(v)
+                            const node = createRef<WordNodeBuilding>();
+                            props.world.add(<WordNodeBuilding ref={node} end={0} world={props.world} team={group.team} points={[this.getAbsolutePosition(), props.world.fromWorldToRect(new Vector2(link_node.x, link_node.y))]} lineDash={[20, 10]} />);
+
+                            props.world.generators.push(t => node().end(1, t))
+                        }
                     })
             }
         });
