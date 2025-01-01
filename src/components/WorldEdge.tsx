@@ -34,10 +34,12 @@ export class WorldEdge extends Line {
             this.add(group_node);
 
             if (group.link) {
-                const link_node = this.world.nodes.get(group.link);
-                props.world.add(
-                    <WordNodeBuilding world={props.world} team={group.team} points={() => [group_node.position, props.world.fromWorldToRect(new Vector2(link_node.x, link_node.y))]} lineDash={[20, 10]} />
-                )
+                group.link.map(v => this.world.nodes.get(v))
+                    .forEach(link_node => {
+                        props.world.add(
+                            <WordNodeBuilding world={props.world} team={group.team} points={() => [group_node.position, props.world.fromWorldToRect(new Vector2(link_node.x, link_node.y))]} lineDash={[20, 10]} />
+                        )
+                    })
             }
 
             if (group.anim) {

@@ -12,8 +12,9 @@ export interface TeamData {
     score: number
 }
 
-export interface NodeDataAnimation {
+export interface RawNodeDataAnimation {
     food?: number;
+    ants?: AntGroupData[];
 }
 
 export interface RawNodeData {
@@ -25,17 +26,22 @@ export interface RawNodeData {
     y: number,
     ants?: AntGroupData[];
 
-    anim?: NodeDataAnimation;
+    anim?: RawNodeDataAnimation;
 }
 
 export interface AntGroupData {
     team: number,
     qt: number,
-    link?: number
+    link?: number[]
 }
 
 export interface AntGroupEdgeAnimationData {
     progress: number;
+}
+
+export interface NodeDataAnimation {
+    food?: number;
+    ants?: Map<number, AntGroupData>;
 }
 
 export interface RawEdgeData {
@@ -97,7 +103,10 @@ export class NodeData {
         this.team = raw.type === "QUEEN" ? raw.team || 0 : 0;
         this.food = raw.type === "FOOD" ? raw.food || 0 : 0;
         raw.ants?.forEach(v => this.ants.set(v.team, v));
-        this.anim = raw.anim;
+        this.anim = {
+            food: raw?.anim?.food,
+            ants: raw?.anim?.ants ? new Map(raw?.anim?.ants?.map(v => [v.team, v])) : undefined
+        }
     }
 }
 
