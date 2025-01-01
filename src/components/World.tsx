@@ -1,5 +1,5 @@
 import { Gradient, Layout, LineProps, Node, Polygon, Rect, RectProps, Txt } from "@motion-canvas/2d";
-import { Color, ThreadGenerator, useLogger, Vector2 } from "@motion-canvas/core";
+import { Color, createSignal, ThreadGenerator, useLogger, Vector2 } from "@motion-canvas/core";
 import { EdgeData, WorldData } from "./DataType";
 import { WorldNode } from "./WorldNode";
 import { WorldEdge } from "./WorldEdge";
@@ -44,13 +44,15 @@ export class World extends Rect {
         this.add(team_node);
         this.data.teams.forEach((v, i) => {
             const pos = positions[i - 1].mul([this.getWidth() / 2, -this.getHeight() / 2]);
-
+            const score = createSignal(v.score);
             team_node.add(
                 <Rect position={pos} size={20} offset={positions[i - 1].mul([1, -1])}>
                     <Txt text={v.name} offset={positions[i - 1].mul([1, -1])} fill={v.color} />
-                    <Txt text={v.score.toString()} offset={positions[i - 1].mul([1, -1])} y={-60 * (pos.y > 0 ? 1 : -1)} fill={"white"} />
+                    <Txt text={() => score().toFixed()} offset={positions[i - 1].mul([1, -1])} y={-60 * (pos.y > 0 ? 1 : -1)} fill={"white"} />
                 </Rect>
             )
+
+            if (v.next) this.generators.push((t) => score(v.next.score, t));
         })
 
     }

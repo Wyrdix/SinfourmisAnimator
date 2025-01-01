@@ -9,6 +9,12 @@ export interface TeamData {
     id: number,
     name: string,
     color: string,
+    score: number,
+    next?: TeamDataAnimation
+
+}
+
+export interface TeamDataAnimation {
     score: number
 }
 
