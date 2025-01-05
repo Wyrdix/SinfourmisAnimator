@@ -97,7 +97,7 @@ export class WorldNode extends Circle {
 
         const content_node = <Shape></Shape>;
 
-        if (this.node.type === "WATER") {
+        if (this.node.type === "EAU") {
             content_node.add(
                 <Circle size={props.size} startAngle={0} endAngle={180} fill="#2bfafa" />
             );
@@ -105,7 +105,7 @@ export class WorldNode extends Circle {
                 <Polygon sides={4} size={props.size} fill={"#2bfafa"} />
             );
             content_node.scale(0.5);
-        } else if (this.node.type === "FOOD") {
+        } else if (this.node.type === "NOURRITURE") {
             content_node.add(
                 <Circle size={props.size} fill="red" />
             );
@@ -116,12 +116,12 @@ export class WorldNode extends Circle {
                 props.world.generators.push(t =>
                     scale_signal(this.node.anim.food, t)
                 )
-        } else if (this.node.type === "QUEEN") {
+        } else if (this.node.type === "REINE") {
             const teamdata = this.world.teams.get(this.node.team);
 
             for (let index = 0; index < 4; index++) {
                 content_node.add(
-                    <Circle size={props.size} startAngle={0} endAngle={60} rotation={index * 90} stroke={teamdata.color} lineWidth={10} />
+                    <Circle size={props.size} startAngle={0} endAngle={60} rotation={index * 90} stroke={teamdata?.color || "white"} lineWidth={10} />
                 );
             }
             content_node.scale(0.5);

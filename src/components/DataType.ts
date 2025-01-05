@@ -24,7 +24,7 @@ export interface RawNodeDataAnimation {
 }
 
 export interface RawNodeData {
-    type?: "EMPTY" | "FOOD" | "WATER" | "QUEEN";
+    type?: "VIDE" | "NOURRITURE" | "EAU" | "REINE";
     food?: number,
     team?: number,
     id: number,
@@ -94,7 +94,7 @@ export class NodeData {
     id: number;
     x: number;
     y: number;
-    type: "EMPTY" | "WATER" | "FOOD" | "QUEEN";
+    type: "VIDE" | "EAU" | "NOURRITURE" | "REINE";
     food: number;
     team: number;
     ants: Map<number, AntGroupData> = new Map();
@@ -105,9 +105,9 @@ export class NodeData {
         this.id = raw.id;
         this.x = raw.x;
         this.y = raw.y;
-        this.type = raw.type || "EMPTY";
-        this.team = raw.type === "QUEEN" ? raw.team || 0 : 0;
-        this.food = raw.type === "FOOD" ? raw.food || 0 : 0;
+        this.type = raw.type || "VIDE";
+        this.team = raw.type === "REINE" ? raw.team || 0 : 0;
+        this.food = raw.type === "NOURRITURE" ? raw.food || 0 : 0;
         raw.ants?.forEach(v => this.ants.set(v.team, v));
         this.anim = {
             food: raw?.anim?.food,
