@@ -15,6 +15,7 @@ interface EnvConfig {
 export default makeScene2D(function* (view) {
 
     const config: EnvConfig = JSON.parse(import.meta.env.VITE_ANIMCONFIG || "{}")
+    if (config.render_end < 0) config.render_end = Number.MAX_VALUE
 
     let parsed_steps: any[] = []
 

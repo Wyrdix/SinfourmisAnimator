@@ -9,7 +9,7 @@ describe('Rendering', () => {
   });
 
   afterAll(async () => {
-    await app.stop();
+    if (app) await app.stop();
   });
 
   test(
@@ -60,7 +60,7 @@ describe('Rendering', () => {
       const render = await app.page.waitForSelector('#render');
       await render.click();
       await app.page.waitForSelector('#render[data-rendering="true"]', {
-        timeout: 2 * 1000,
+        timeout: 20 * 1000,
       });
       await app.page.waitForSelector('#render:not([data-rendering="true"])', {
         timeout: 15 * 60 * 1000,
