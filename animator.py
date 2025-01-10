@@ -19,6 +19,7 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
 
+    sp.run(["mkdir", "data"], stdout=sp.DEVNULL, stderr=sp.STDOUT)
     sp.run(["rm", "-f", "./data/world.json"])
     sp.run(["cp", args.filename, "data/world.json"])
     sp.run(["npm", "i"], stdout=sp.DEVNULL, stderr=sp.STDOUT)
