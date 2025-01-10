@@ -1,5 +1,5 @@
-import {afterAll, beforeAll, describe, expect, test} from 'vitest';
-import {App, start} from "./app"; 
+import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { App, start } from "./app";
 
 describe('Rendering', () => {
   let app: App;
@@ -38,7 +38,7 @@ describe('Rendering', () => {
       );
       expect(frameRateLabel).toBeDefined();
       expect(frameRateLabel).toBeDefined();
-      await frameRateLabel.click({clickCount: 3});
+      await frameRateLabel.click({ clickCount: 3 });
       await frameRateLabel.type('15');
 
       const scaleLabel = await app.page.waitForSelector(

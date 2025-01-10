@@ -1,5 +1,5 @@
 import { Line, LineProps, Polygon } from "@motion-canvas/2d";
-import { Color, createSignal, easeInExpo, easeOutExpo, Vector2 } from "@motion-canvas/core";
+import { Color, createSignal, easeInExpo, easeInOutExpo, easeOutExpo, useLogger, Vector2 } from "@motion-canvas/core";
 import { EdgeData, WorldData } from "./DataType";
 import { World } from "./World";
 import { WordNodeBuilding } from "./WordNodeBuilding";
@@ -25,14 +25,22 @@ export class WorldEdge extends Line {
         this.world = props.world.data;
         this.edge = props.edgeData;
 
+        let subbed = this.getPointAtPercentage(0).position.sub(this.getPointAtPercentage(1).position)
+
+        let length = Math.sqrt(subbed.dot(subbed))
+
+        let usable_length = length - props.world.preferredNodeSize;
+
         this.edge.groups.filter(v => v.qt > 0).forEach(group => {
 
             const progress = createSignal(group.progress);
 
-            const group_node = <Polygon sides={3 + Math.round(Math.log10(group.qt))} size={props.world.preferredNodeSize * 0.5 * Math.exp(-1 / group.qt)} position={() => this.getPointAtPercentage(progress()).position} fill={this.world.teams.get(group.team).color} />
-
+            const group_node = <Polygon sides={3 + Math.round(Math.log10(group.qt))}
+                opacity={() => (progress() <= 0.05 || progress() >= 0.95) ? Math.exp(-4 * Math.max(progress(), 1 - progress())) : 1}
+                size={props.world.preferredNodeSize * 0.5 * Math.exp(-1 / group.qt)}
+                position={() => this.getPointAtDistance(usable_length *  progress() + props.world.preferredNodeSize / 2).position}
+                fill={this.world.teams.get(group.team).color} />
             this.add(group_node);
-
             if (group.link) {
                 group.link.map(v => this.world.nodes.get(v))
                     .forEach(link_node => {
@@ -43,13 +51,7 @@ export class WorldEdge extends Line {
             }
 
             if (group.anim) {
-                if (group.anim.progress === 0 || group.anim.progress === 1) {
-                    props.world.generators.push(t => progress(group?.anim?.progress, t));
-                    props.world.generators.push(t => group_node.opacity(0, t, easeInExpo));
-                } else {
-                    props.world.generators.push(t => progress(group?.anim?.progress, t));
-
-                }
+                props.world.generators.push({ generator: t => progress(group?.anim?.progress, t), type: "EDGE_MOVEMENT" });
             }
         })
     }
