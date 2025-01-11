@@ -17,6 +17,7 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--start", type=int, default=0)
     parser.add_argument("-e", "--end", type=int, default=-1)
     parser.add_argument("-g", "--group", type=int, default=100)
+    parser.add_argument("-t", "--time", type=float, default=1)
     
     args = parser.parse_args()
 
@@ -36,7 +37,8 @@ if __name__ == "__main__":
         env["VITE_ANIMCONFIG"] = json.dumps({
             "colorizer": args.colorizer,
             "render_start": start,
-            "render_end": start + args.group
+            "render_end": start + args.group,
+            "time_per_step": args.time
         })
         sp.run(["rm", "-f", "video.mp4"])
         sp.run(["npm", "run", "test"], env=env)

@@ -9,6 +9,7 @@ interface EnvConfig {
     colorizer?: "8Bit" | "File";
     render_start?: number;
     render_end?: number;
+    time_per_step?: number;
 }
 
 
@@ -48,7 +49,7 @@ export default makeScene2D(function* (view) {
         view.add(
             <W_Component ref={world} data={world_data} colorizer={colorize} fixed_size={new Vector2(view.width(), view.height())} />
         )
-        yield* all(...world().generators.map(v => v.generator(1)))
+        yield* all(...world().generators.map(v => v.generator(Math.max(config.time_per_step || 1, 0))))
     }
 
 });
