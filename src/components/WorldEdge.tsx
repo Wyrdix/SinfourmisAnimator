@@ -1,5 +1,5 @@
 import { Line, LineProps, Polygon } from "@motion-canvas/2d";
-import { Color, createSignal, easeInExpo, easeInOutExpo, easeOutExpo, useLogger, Vector2 } from "@motion-canvas/core";
+import { Color, createSignal, easeInExpo, easeInOutExpo, easeOutExpo, Vector2 } from "@motion-canvas/core";
 import { EdgeData, WorldData } from "./DataType";
 import { World } from "./World";
 import { WordNodeBuilding } from "./WordNodeBuilding";

@@ -1,6 +1,6 @@
-import { makeScene2D, PossibleCanvasStyle, Txt, word } from '@motion-canvas/2d';
+import { makeScene2D, PossibleCanvasStyle } from '@motion-canvas/2d';
 import * as raw_steps from "../../data/world.json"
-import { all, beginSlide, Color, createRef, Reference, SignalValue, useLogger, Vector2, waitFor } from '@motion-canvas/core';
+import { all, beginSlide, createRef, Reference, Vector2 } from '@motion-canvas/core';
 import { World as W_Component } from '../components/World';
 import { EnvConfig, RawWorldData, WorldData } from '../components/DataType';
 import colorize_file from "../colorize.json"

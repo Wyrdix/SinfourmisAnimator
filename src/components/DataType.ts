@@ -1,4 +1,4 @@
-import { clamp, useLogger } from "@motion-canvas/core";
+import { clamp } from "@motion-canvas/core";
 
 export interface EnvConfig {
     colorizer?: "8Bit" | "File";

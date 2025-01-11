@@ -1,6 +1,6 @@
-import { Gradient, Layout, LineProps, Node, Polygon, PossibleCanvasStyle, Rect, RectProps, Txt } from "@motion-canvas/2d";
-import { Color, createSignal, ThreadGenerator, useLogger, Vector2 } from "@motion-canvas/core";
-import { EdgeData, EnvConfig, WorldData } from "./DataType";
+import { Node, PossibleCanvasStyle, Rect, RectProps, Txt } from "@motion-canvas/2d";
+import { createSignal, ThreadGenerator, Vector2 } from "@motion-canvas/core";
+import { EnvConfig, WorldData } from "./DataType";
 import { WorldNode } from "./WorldNode";
 import { WorldEdge } from "./WorldEdge";
 

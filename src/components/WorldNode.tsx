@@ -1,5 +1,5 @@
 import { Circle, Shape, Polygon, CircleProps } from "@motion-canvas/2d";
-import { all, createRef, createSignal, SimpleSignal, useLogger, Vector2 } from "@motion-canvas/core";
+import { all, createRef, createSignal, SimpleSignal, Vector2 } from "@motion-canvas/core";
 import { WorldData, NodeData } from "./DataType";
 import { World } from "./World";
 import { WordNodeBuilding } from "./WordNodeBuilding";
@@ -13,7 +13,6 @@ export class WorldNode extends Circle {
 
     constructor(props: WorldNodeProps) {
         super({ ...props, key: "NODE_" + props.node.id, lineWidth: 4, stroke: "white", fill: props.world.colorizer(props.node.phero) });
-        useLogger().info(JSON.stringify(this.fill()));
         this.world = props.world.data;
         this.node = props.node;
 
