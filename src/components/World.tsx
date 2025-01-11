@@ -134,9 +134,9 @@ export class World extends Rect {
                 new WorldNode({ world: this, node: node, position: position, size: this.preferredNodeSize })
             );
 
-            thisRef.add(
-                new Txt({ position: position, size: this.preferredNodeSize, fill: "orange", text: k.toString() })
-            )
+            // thisRef.add(
+            //     new Txt({ position: position, size: this.preferredNodeSize, fill: "orange", text: k.toString() })
+            // )
         });
 
     }
