@@ -47,8 +47,9 @@ if __name__ == "__main__":
         segment = dict([(k, obj["data"][k]) for k in obj["data"] if start <= (int(k)) < min(start + args.group, end+1)])
         json.dump({"data" : segment}, open("./data/world.json", "w"))
 
-        sp.run(["rm", "-f", "video.mp4"])
+        sp.run(["rm", "-rf", "output/project"])
         sp.run(["npm", "run", "test"], env=env)
+        sp.run(["rm", "-f", "video.mp4"])
         sp.run(["ffmpeg","-i","output/project/%6d.png", "-vcodec","libx264", "-crf", "22","video.mp4"], stdout=sp.DEVNULL, stderr=sp.STDOUT)
         print("Rendered ", start, "to", min(args.start + args.group, end))
         sp.run(["mv", "video.mp4", "output/"+str(round(start/args.group))+"_video.mp4"])

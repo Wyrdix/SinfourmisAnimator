@@ -6,11 +6,11 @@ describe('Rendering', () => {
 
   beforeAll(async () => {
     app = await start();
-  });
+  }, 15 * 60 * 1000);
 
   afterAll(async () => {
     if (app) await app.stop();
-  });
+  }, 15 * 60 * 1000);
 
   test(
     'Animation renders correctly',
