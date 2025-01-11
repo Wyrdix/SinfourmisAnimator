@@ -18,6 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--end", type=int, default=-1)
     parser.add_argument("-g", "--group", type=int, default=100)
     parser.add_argument("-t", "--time", type=float, default=1)
+    parser.add_argument("--hud", choices=["False", "True"], default="True")
     
     args = parser.parse_args()
 
@@ -37,9 +38,11 @@ if __name__ == "__main__":
         env["VITE_ANIMCONFIG"] = json.dumps({
             "colorizer": args.colorizer,
             "render_start": start,
-            "render_end": start + args.group,
-            "time_per_step": args.time
+            "render_end": min(start + args.group, end+1),
+            "time_per_step": args.time,
+            "hud": args.hud == "True"
         })
+        print(env["VITE_ANIMCONFIG"])
         sp.run(["rm", "-f", "video.mp4"])
         sp.run(["npm", "run", "test"], env=env)
         sp.run(["ffmpeg","-i","output/project/%6d.png", "-vcodec","libx264", "-crf", "22","video.mp4"], stdout=sp.DEVNULL, stderr=sp.STDOUT)
@@ -50,7 +53,7 @@ if __name__ == "__main__":
     sp.run("pwd")
     sp.run(["rm", "output.mp4"])
     with open("lists.txt", "w") as f:
-        f.writelines(["file 'output/"+str(i)+"_video.mp4'\n" for i in range(0, round(end/args.group))])
+        f.writelines(["file 'output/"+str(i)+"_video.mp4'\n" for i in range(0, 1 + round(end/args.group))])
     sp.run(["ffmpeg","-f", "concat", "-i", "lists.txt", "-c", "copy", "output.mp4"])
     sp.run(["rm", "lists.txt"])
     sp.run(["rm", "-rf", "output"])

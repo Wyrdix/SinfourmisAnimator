@@ -2,16 +2,8 @@ import { makeScene2D, PossibleCanvasStyle, Txt, word } from '@motion-canvas/2d';
 import * as raw_steps from "../../data/world.json"
 import { all, beginSlide, Color, createRef, Reference, SignalValue, useLogger, Vector2, waitFor } from '@motion-canvas/core';
 import { World as W_Component } from '../components/World';
-import { RawWorldData, WorldData } from '../components/DataType';
+import { EnvConfig, RawWorldData, WorldData } from '../components/DataType';
 import colorize_file from "../colorize.json"
-
-interface EnvConfig {
-    colorizer?: "8Bit" | "File";
-    render_start?: number;
-    render_end?: number;
-    time_per_step?: number;
-}
-
 
 export default makeScene2D(function* (view) {
 
@@ -47,7 +39,7 @@ export default makeScene2D(function* (view) {
 
         const world: Reference<W_Component> = createRef();
         view.add(
-            <W_Component ref={world} data={world_data} colorizer={colorize} fixed_size={new Vector2(view.width(), view.height())} />
+            <W_Component ref={world} config={config} data={world_data} colorizer={colorize} fixed_size={new Vector2(view.width(), view.height())} />
         )
         yield* all(...world().generators.map(v => v.generator(Math.max(config.time_per_step || 1, 0))))
     }

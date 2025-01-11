@@ -1,11 +1,12 @@
 import { Gradient, Layout, LineProps, Node, Polygon, PossibleCanvasStyle, Rect, RectProps, Txt } from "@motion-canvas/2d";
 import { Color, createSignal, ThreadGenerator, useLogger, Vector2 } from "@motion-canvas/core";
-import { EdgeData, WorldData } from "./DataType";
+import { EdgeData, EnvConfig, WorldData } from "./DataType";
 import { WorldNode } from "./WorldNode";
 import { WorldEdge } from "./WorldEdge";
 
 export interface WorldProps extends RectProps {
     data: WorldData;
+    config: EnvConfig;
     fixed_size: Vector2;
     colorizer: (v: number) => PossibleCanvasStyle;
 }
@@ -36,33 +37,35 @@ export class World extends Rect {
         this.refreshFileScale();
         this.refresh();
 
-        const team_node = <Node></Node>
-        const team_count = this.data.teams.size;
+        if (props.config.hud === true) {
+            const team_node = <Node></Node>
+            const team_count = this.data.teams.size;
 
-        const positions: Vector2[] = (
-            team_count == 2 ? [[-1, 1], [1, 1]]
-                : team_count == 3 ? [[-1, 1], [1, 1], [0, -1]]
-                    : team_count == 4 ? [[-1, 1], [1, 1], [-1, -1], [1, -1]]
-                        : team_count == 5 ? [[-1, 1], [0, 1], [1, 1], [-1, -1], [1, -1]]
-                            : team_count == 6 ? [[-1, 1], [0, 1], [1, 1], [-1, -1], [0, -1], [1, -1]]
-                                : team_count == 7 ? [[-1, 1], [0, 1], [1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
-                                    : team_count == 8 ? [[-1, 1], [0, 1], [1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0]] : []).map(v => new Vector2(v as [number, number]))
+            const positions: Vector2[] = (
+                team_count == 2 ? [[-1, 1], [1, 1]]
+                    : team_count == 3 ? [[-1, 1], [1, 1], [0, -1]]
+                        : team_count == 4 ? [[-1, 1], [1, 1], [-1, -1], [1, -1]]
+                            : team_count == 5 ? [[-1, 1], [0, 1], [1, 1], [-1, -1], [1, -1]]
+                                : team_count == 6 ? [[-1, 1], [0, 1], [1, 1], [-1, -1], [0, -1], [1, -1]]
+                                    : team_count == 7 ? [[-1, 1], [0, 1], [1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]
+                                        : team_count == 8 ? [[-1, 1], [0, 1], [1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0]] : []).map(v => new Vector2(v as [number, number]))
 
 
-        this.data.teams.forEach((v, i) => {
-            const pos = positions[i - 1].mul([this.getWidth() / 2, -this.getHeight() / 2]);
-            const score = createSignal(v.score);
-            team_node.add(
-                <Rect position={pos} size={20} offset={positions[i - 1].mul([1, -1])}>
-                    <Txt text={v.name} offset={positions[i - 1].mul([1, -1])} fill={v.color} />
-                    <Txt text={() => score().toFixed()} offset={positions[i - 1].mul([1, -1])} y={-60 * (pos.y > 0 ? 1 : -1)} fill={"white"} />
-                </Rect>
-            )
+            this.data.teams.forEach((v, i) => {
+                const pos = positions[i - 1].mul([this.getWidth() / 2, -this.getHeight() / 2]);
+                const score = createSignal(v.score);
+                team_node.add(
+                    <Rect position={pos} size={20} offset={positions[i - 1].mul([1, -1])}>
+                        <Txt text={v.name} offset={positions[i - 1].mul([1, -1])} fill={v.color} />
+                        <Txt text={() => score().toFixed()} offset={positions[i - 1].mul([1, -1])} y={-60 * (pos.y > 0 ? 1 : -1)} fill={"white"} />
+                    </Rect>
+                )
 
-            if (v.next) this.generators.push({ generator: (t) => score(v.next.score, t), type: "SCORE_UPDATE" });
-        })
+                if (v.next) this.generators.push({ generator: (t) => score(v.next.score, t), type: "SCORE_UPDATE" });
+            })
 
-        this.add(team_node);
+            this.add(team_node);
+        }
     }
 
     fromWorldToRect(position: Vector2) {

@@ -1,5 +1,13 @@
 import { clamp, useLogger } from "@motion-canvas/core";
 
+export interface EnvConfig {
+    colorizer?: "8Bit" | "File";
+    render_start?: number;
+    render_end?: number;
+    time_per_step?: number;
+    hud?: boolean;
+}
+
 export interface RawWorldData {
     teams: TeamData[]
     nodes: RawNodeData[],
